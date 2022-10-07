@@ -3,6 +3,7 @@
 use Clockwork\Clockwork;
 use Clockwork\Authentication\NullAuthenticator;
 use Clockwork\DataSource\PsrMessageDataSource;
+use Clockwork\DataSource\XdebugDataSource;
 use Clockwork\Storage\FileStorage;
 use Clockwork\Helpers\ServerTiming;
 
@@ -65,14 +66,31 @@ class ClockworkMiddleware
 			return $this->jsonResponse([ 'message' => $authenticated, 'requires' => $authenticator->requires() ], 403);
 		}
 
+		/** @var \Clockwork\Request\Request $data */
 		if ($direction == 'previous') {
 			$data = $storage->previous($id, $count);
+			for ($i = 0; $i < count($data); $i++) {
+				if (file_exists($data->xdebug['profile'])) {
+					$data[$i]->xdebug['profileData'] = file_get_contents($data[$i]->xdebug['profile']);
+				}
+			}
 		} elseif ($direction == 'next') {
 			$data = $storage->next($id, $count);
-		} elseif ($id == 'latest') {
+			for ($i = 0; $i < count($data); $i++) {
+				if (file_exists($data->xdebug['profile'])) {
+					$data[$i]->xdebug['profileData'] = file_get_contents($data[$i]->xdebug['profile']);
+				}
+			}
+		} elseif ($id == 'latest' or $id === null) {
 			$data = $storage->latest();
+			if (file_exists($data->xdebug['profile'])) {
+				$data->xdebug['profileData'] = file_get_contents($data->xdebug['profile']);
+			}
 		} else {
 			$data = $storage->find($id);
+			if (file_exists($data->xdebug['profile'])) {
+				$data->xdebug['profileData'] = file_get_contents($data->xdebug['profile']);
+			}
 		}
 
 		return $this->jsonResponse($data);
@@ -82,6 +100,7 @@ class ClockworkMiddleware
 	{
 		$this->clockwork->timeline()->finalize($this->startTime);
 		$this->clockwork->addDataSource(new PsrMessageDataSource($request, $response));
+		$this->clockwork->addDataSource(new XdebugDataSource());
 
 		$this->clockwork->resolveRequest();
 		$this->clockwork->storeRequest();
@@ -93,7 +112,7 @@ class ClockworkMiddleware
 			->withHeader('X-Clockwork-Version', Clockwork::VERSION);
 
 		if ($basePath = $this->app->getBasePath()) {
-			$response = $response->withHeader('X-Clockwork-Path', $basePath);
+			$response = $response->withHeader('X-Clockwork-Path', '/api/v2/__clockwork/');
 		}
 
 		return $response->withHeader('Server-Timing', ServerTiming::fromRequest($clockworkRequest)->value());
