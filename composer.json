@@ -1,5 +1,5 @@
 {
-    "name": "itsgoingd/clockwork",
+    "name": "dexpro-solutions-gmbh/clockwork",
     "description": "php dev tools in your browser",
     "keywords": ["debugging", "profiling", "logging", "laravel", "lumen", "slim", "devtools"],
     "homepage": "https://underground.works/clockwork",
