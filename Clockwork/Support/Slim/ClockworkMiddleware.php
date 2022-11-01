@@ -66,27 +66,30 @@ class ClockworkMiddleware
 			return $this->jsonResponse([ 'message' => $authenticated, 'requires' => $authenticator->requires() ], 403);
 		}
 
-		/** @var \Clockwork\Request\Request $data */
 		if ($direction == 'previous') {
+			/** @var \Clockwork\Request\Request[] $data */
 			$data = $storage->previous($id, $count);
 			for ($i = 0; $i < count($data); $i++) {
-				if (file_exists($data->xdebug['profile'])) {
+				if (file_exists($data[$i]->xdebug['profile'])) {
 					$data[$i]->xdebug['profileData'] = file_get_contents($data[$i]->xdebug['profile']);
 				}
 			}
 		} elseif ($direction == 'next') {
+			/** @var \Clockwork\Request\Request[] $data */
 			$data = $storage->next($id, $count);
 			for ($i = 0; $i < count($data); $i++) {
-				if (file_exists($data->xdebug['profile'])) {
+				if (file_exists($data[$i]->xdebug['profile'])) {
 					$data[$i]->xdebug['profileData'] = file_get_contents($data[$i]->xdebug['profile']);
 				}
 			}
 		} elseif ($id == 'latest' or $id === null) {
+			/** @var \Clockwork\Request\Request $data */
 			$data = $storage->latest();
 			if (file_exists($data->xdebug['profile'])) {
 				$data->xdebug['profileData'] = file_get_contents($data->xdebug['profile']);
 			}
 		} else {
+			/** @var \Clockwork\Request\Request $data */
 			$data = $storage->find($id);
 			if (file_exists($data->xdebug['profile'])) {
 				$data->xdebug['profileData'] = file_get_contents($data->xdebug['profile']);
