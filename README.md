@@ -36,6 +36,30 @@
 	</a>
 </p>
 
+## Maintenance For The DEXPRO Fork Of Clockwork
+
+### Preparation
+
+- Add a remote to your Git repository: `git remote add upstream git@github.com:itsgoingd/clockwork`
+
+### General Development
+
+- Retrieve changes: `git fetch --all`.
+- Check out our master branch: `git checkout master`.
+- Rebase our master branch: `git rebase upstream/master`.
+- Update the branch on GitHub: `git push --force-with-lease origin master`.
+
+### New Upstream Version
+
+- Perform steps as above to update the `master` branch first.
+- Assuming a new version 6.7.8 was released, our last one published was 6.7.7.
+- Check out our latest release: `git checkout v6.7.7`.
+- Rebase on the upstream release: `git rebase v6.7.8`.
+- Replace the tag: `git tag -f v6.7.8`.
+- Publish the tag on GitHub: `git push origin v6.7.8 -f`.
+
+## General Use
+
 ### Installation
 
 Install the Clockwork library via [Composer](https://getcomposer.org/).
